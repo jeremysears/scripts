@@ -1,0 +1,30 @@
+# always copy files that match the listed globs, never symlink them.
+#COPY_ALWAYS=""
+
+# the source directories for dotfiles. The first in the list is the source to
+# which dotfiles created using mkrc(1) are installed. The default value is
+# ~/.dotfiles
+DOTFILES_DIRS="$(dirname "${BASH_SOURCE[0]}")"
+
+# a space-separated list of exclude patterns. Exclude patterns are explained in
+# detail in lsrc(1) under the section EXCLUDE PATTERN.
+EXCLUDES="README.md"
+
+# the hostname for this computer. This is normally computed using the
+# hostname(1) command, but this command is non-standard and can prove
+# unreliable. The HOSTNAME variable forces a known hostname.
+#HOSTNAME=""
+
+# the default tags.
+#TAGS=""
+
+# a space-separated list of patterns. Directories matching a pattern are
+# symlinked instead of descended. Patterns are explained in detail in
+# lsrc(1) under the section EXCLUDE PATTERN.
+#SYMLINK_DIRS=""
+
+# a space separated list of patterns. Files matching this pattern will be
+# symlinked without a leading dot. If a file is also in SYMLINK_DIRS, then the
+# directory will be symlinked without a leading dot. Patterns are explained in
+# detail in lsrc(1) under the section EXCLUDE PATTERN.
+UNDOTTED="bin"
