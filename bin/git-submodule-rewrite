@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
+# This script builds on the excellent work by Lucas Jenß, described in his blog
+# post "Integrating a submodule into the parent repository", but automates the
+# entire process and cleans up a few other corner cases.
+# https://x3ro.de/2013/09/01/Integrating-a-submodule-into-the-parent-repository.html
+
 function usage(){
   echo "Merge a submodule into a repo, retaining file history."
   echo "Usage: $0 <submodule-name>"
   echo ""
   echo "options:"
   echo "  -h, --help                Print this message"
-  echo "  -v, --varbose             Display verbose output"
+  echo "  -v, --verbose             Display verbose output"
 }
 
 function abort {
