@@ -8,7 +8,7 @@ DOTFILES_DIRS="$(dirname "${BASH_SOURCE[0]}")"
 
 # a space-separated list of exclude patterns. Exclude patterns are explained in
 # detail in lsrc(1) under the section EXCLUDE PATTERN.
-EXCLUDES="README.md"
+EXCLUDES="README.md LICENSE"
 
 # the hostname for this computer. This is normally computed using the
 # hostname(1) command, but this command is non-standard and can prove
