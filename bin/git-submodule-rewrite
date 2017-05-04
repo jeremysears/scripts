@@ -50,6 +50,14 @@ EOF
   request_confirmation "Do you want to proceed?"
 }
 
+function git_version_lte() {
+  OP_VERSION=$(printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' '\n' | head -n 4))
+  GIT_VERSION=$(git version)
+  GIT_VERSION=$(printf "%03d%03d%03d%03d" $(echo "${GIT_VERSION#git version}" | tr '.' '\n' | head -n 4))
+  echo -e "${GIT_VERSION}\n${OP_VERSION}" | sort | head -n1
+  [ ${OP_VERSION} -le ${GIT_VERSION} ]
+}
+
 function main() {
 
   warn
@@ -67,7 +75,7 @@ function main() {
   rm -rf ".git/modules/${sub}"
 
   # Rewrite submodule history
-  local tmpdir="$(mktemp -d -t submodule-rewrite)"
+  local tmpdir="$(mktemp -d -t submodule-rewrite-XXXXXX)"
   git clone "${url}" "${tmpdir}"
   pushd "${tmpdir}"
   local tab="$(printf '\t')"
@@ -78,7 +86,17 @@ function main() {
   # Merge in rewritten submodule history
   git remote add "${sub}" "${tmpdir}"
   git fetch "${sub}"
-  git merge -s ours --no-commit --allow-unrelated-histories "${sub}/master"
+
+  if git_version_lte 2.8.4
+  then
+    # Previous to git 2.9.0 the parameter would yield an error
+    ALLOW_UNRELATED_HISTORIES=""
+  else
+    # From git 2.9.0 this parameter is required
+    ALLOW_UNRELATED_HISTORIES="--allow-unrelated-histories"
+  fi
+
+  git merge -s ours --no-commit ${ALLOW_UNRELATED_HISTORIES} "${sub}/master"
   rm -rf tmpdir
 
   # Add submodule content
