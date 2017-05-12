@@ -68,7 +68,9 @@ function main() {
 
   # Remove submodule and commit
   git config -f .gitmodules --remove-section "submodule.${sub}"
-  git config -f .git/config --remove-section "submodule.${sub}"
+  if git config -f .git/config --get "submodule.${sub}.url"; then
+    git config -f .git/config --remove-section "submodule.${sub}"
+  fi
   rm -rf "${path}"
   git add -A .
   git commit -m "Remove submodule ${sub}"
