@@ -81,7 +81,7 @@ function main() {
   git clone "${url}" "${tmpdir}"
   pushd "${tmpdir}"
   local tab="$(printf '\t')"
-  local filter="git ls-files -s | sed \"s/${tab}/${tab}${path}\//\" | GIT_INDEX_FILE=\${GIT_INDEX_FILE}.new git update-index --index-info && mv \${GIT_INDEX_FILE}.new \${GIT_INDEX_FILE}"
+  local filter="git ls-files -s | sed \"s/${tab}/${tab}${path}\//\" | GIT_INDEX_FILE=\${GIT_INDEX_FILE}.new git update-index --index-info && mv \${GIT_INDEX_FILE}.new \${GIT_INDEX_FILE} || true"
   git filter-branch --index-filter "${filter}" HEAD
   popd
 
