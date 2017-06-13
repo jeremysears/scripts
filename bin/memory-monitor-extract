@@ -6,7 +6,7 @@ function usage()
   echo ""
   echo "First export the MemoryMonitor statistics from Cloudwatch Logs to memory-monitor.log"
   echo "For example:"
-  echo "awslogs get -GS --profile=dev andromeda-analysis-stage-logs aggregate --start='June 08 14:50:40 UTC 2017' --end='June 09 12:00:00 UTC 2017' --filter-pattern '\"MemoryMonitor\$\$logIpaStats\$1] {\"' > memory-monitor.log"
+  echo "awslogs get -GS --profile=dev andromeda-analysis-stage-logs aggregate --start='June 08 14:50:40 UTC 2017' --end='June 09 12:00:00 UTC 2017' --filter-pattern '\"MemoryMonitor\$\$logIpaPredictorMetrics\$1] {\"' > memory-monitor.log"
   echo ""
   echo "Usage: $(basename "$0") [options] application-log-file output-file"
   echo ""
@@ -19,7 +19,7 @@ function main() {
   : > "${outfile}"
   while read p; do
     echo "${p}" |
-      sed 's/.*MemoryMonitor$$anonfun$com$lookout$andromeda$analysis$MemoryMonitor$$logIpaStats$1] //' |
+      sed 's/.*MemoryMonitor$$anonfun$com$lookout$andromeda$analysis$MemoryMonitor$$logIpaPredictorMetrics$1] //' |
       jq -r 'del(.taskMaxMemory) | [ values[] | tostring ] | join(", ")' >> "${outfile}"
   done <"${infile}"
 }
