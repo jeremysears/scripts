@@ -141,7 +141,11 @@ if [ -z "${sub}" ]; then
   exit 1
 fi
 
-shift 2
+shift
+
+if [ -n "${1:-}" ]; then
+  shift
+fi
 
 if [ -n "${1:-}" ]; then
   >&2 echo "Error: Unknown option: ${1:-}"
