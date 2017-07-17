@@ -6,8 +6,9 @@
 # https://x3ro.de/2013/09/01/Integrating-a-submodule-into-the-parent-repository.html
 
 function usage(){
-  echo "Merge a submodule into a repo, retaining file history."
-  echo "Usage: $0 <submodule-name>"
+  echo "Usage: $0 <submodule-name> [<submodule-branch>]"
+  echo "Merge a single branch of <submodule-name> into a repo, retaining file history."
+  echo "If provided then <submodule-branch> will be merged, otherwise master."
   echo ""
   echo "options:"
   echo "  -h, --help                Print this message"
@@ -78,7 +79,7 @@ function main() {
 
   # Rewrite submodule history
   local tmpdir="$(mktemp -d -t submodule-rewrite-XXXXXX)"
-  git clone "${url}" "${tmpdir}"
+  git clone -b "${branch}" "${url}" "${tmpdir}"
   pushd "${tmpdir}"
   local tab="$(printf '\t')"
   local filter="git ls-files -s | sed \"s:${tab}:${tab}${path}/:\" | GIT_INDEX_FILE=\${GIT_INDEX_FILE}.new git update-index --index-info && mv \${GIT_INDEX_FILE}.new \${GIT_INDEX_FILE} || true"
@@ -98,14 +99,14 @@ function main() {
     ALLOW_UNRELATED_HISTORIES="--allow-unrelated-histories"
   fi
 
-  git merge -s ours --no-commit ${ALLOW_UNRELATED_HISTORIES} "${sub}/master"
+  git merge -s ours --no-commit ${ALLOW_UNRELATED_HISTORIES} "${sub}/${branch}"
   rm -rf tmpdir
 
   # Add submodule content
-  git clone "${url}" "${path}"
+  git clone -b "${branch}" "${url}" "${path}"
   rm -rf "${path}/.git"
   git add "${path}"
-  git commit -m "Merge submodule contents for ${sub}"
+  git commit -m "Merge submodule contents for ${sub}/${branch}"
   git config -f .git/config --remove-section "remote.${sub}"
 
   set +x
@@ -132,6 +133,7 @@ while [ $# -gt 0 ]; do
 done
 
 declare sub="${1:-}"
+declare branch="${2:-master}"
 
 if [ -z "${sub}" ]; then
   >&2 echo "Error: No submodule specified"
@@ -139,7 +141,7 @@ if [ -z "${sub}" ]; then
   exit 1
 fi
 
-shift
+shift 2
 
 if [ -n "${1:-}" ]; then
   >&2 echo "Error: Unknown option: ${1:-}"
