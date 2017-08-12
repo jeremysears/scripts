@@ -108,23 +108,28 @@ function main() {
   git clone -b "${branch}" "${url}" "${path}"
 
   # Transfer its own submodules to the parent
-  sub_names=$(git config -f ${path}/.gitmodules --name-only --get-regexp path | sed -re "s/^submodule\.(.+)\.path$/\1/g")
   add_submod_cmds=""
+  if [ -f ${path}/.gitmodules ]; then
+    sub_names=$(git config -f ${path}/.gitmodules --name-only --get-regexp path | sed -re "s/^submodule\.(.+)\.path$/\1/g")
 
-  for sub_name in ${sub_names}; do
-    sub_branch=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.branch") || true
-    [ -n "${sub_branch}" ] && sub_branch="-b ${sub_branch}"
-    sub_path=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.path")
-    sub_url=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.url")
+    for sub_name in ${sub_names}; do
+      sub_branch=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.branch") || true
+      [ -n "${sub_branch}" ] && sub_branch="-b ${sub_branch}"
+      sub_path=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.path")
+      sub_url=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.url")
 
-    # remove the sub-submodule (which should be empty) and cache the command to reinstate it
-    rmdir ${path}/${sub_path}
-    add_submod_cmds="$add_submod_cmds git submodule add ${sub_branch} --name ${sub_name} -- ${sub_url} ${path}/${sub_path} ; "
-  done
+      # remove the sub-submodule (which should be empty) and cache the command to reinstate it
+      rmdir ${path}/${sub_path}
+      add_submod_cmds="$add_submod_cmds git submodule add ${sub_branch} --name ${sub_name} -- ${sub_url} ${path}/${sub_path} ; "
+    done
+  fi
 
   rm -rf "${path}/.git" "${path}/.gitmodules"
   git add "${path}"
-  bash -c "${add_submod_cmds}"
+  if [ -n "${add_submod_cmds}" ]; then
+    bash -c "${add_submod_cmds}"
+  fi
+
   git commit -m "Merge submodule contents for ${sub}/${branch}"
   git config -f .git/config --remove-section "remote.${sub}"
 
