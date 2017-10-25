@@ -110,7 +110,7 @@ function main() {
   # Transfer its own submodules to the parent
   add_submod_cmds=""
   if [ -f ${path}/.gitmodules ]; then
-    sub_names=$(git config -f ${path}/.gitmodules --name-only --get-regexp path | sed -re "s/^submodule\.(.+)\.path$/\1/g")
+    sub_names=$(git config -f ${path}/.gitmodules --get-regex path | sed 's/.* \(.*\)$/\1/g')
 
     for sub_name in ${sub_names}; do
       sub_branch=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.branch") || true
