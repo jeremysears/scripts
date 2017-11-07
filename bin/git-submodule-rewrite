@@ -61,6 +61,24 @@ function git_version_lte() {
   [ ${GIT_VERSION} -le ${OP_VERSION} ]
 }
 
+# Convert a url to an absolute url
+#
+# Parameters:
+#  $1: The url to check
+#  $2: The base url to use if $1 is a relative path
+#
+# Returns an absolute url
+function absolute_url {
+  local url=$1
+  local base=$2
+
+  if [[ $url =~ \.\. ]]; then
+    echo "$base/$(basename $url)"
+  else
+    echo $url
+  fi
+}
+
 function main() {
 
   warn
@@ -184,10 +202,17 @@ if ! [ -d ".git" ]; then
 fi
 
 declare path="$(git config -f .gitmodules --get "submodule.${sub}.path")"
-declare url="$(git config -f .gitmodules --get "submodule.${sub}.url")"
+declare superproject_dir="$(dirname $(git config --get remote.origin.url))"
+declare url=$(absolute_url $(git config -f .gitmodules --get "submodule.${sub}.url") $superproject_dir)
 
 if [ -z "${path}" ]; then
   >&2 echo "Error: Submodule not found: ${sub}"
+  usage
+  exit 1
+fi
+
+if [ -z "${superproject_dir}"]; then
+  >&2 echo "Error: Could not determine the remote origin for this superproject: ${superproject_dir}"
   usage
   exit 1
 fi
