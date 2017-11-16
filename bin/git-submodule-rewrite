@@ -211,7 +211,7 @@ if [ -z "${path}" ]; then
   exit 1
 fi
 
-if [ -z "${superproject_dir}"]; then
+if [ -z "${superproject_dir}" ]; then
   >&2 echo "Error: Could not determine the remote origin for this superproject: ${superproject_dir}"
   usage
   exit 1
