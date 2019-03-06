@@ -12,6 +12,7 @@ function usage(){
   echo ""
   echo "options:"
   echo "  -h, --help                Print this message"
+  echo "  -f, --force               Skip the warning message (use with caution)"
   echo "  -v, --verbose             Display verbose output"
 }
 
@@ -85,7 +86,9 @@ function absolute_url {
 
 function main() {
 
-  warn
+  if [ "${skip_warn}" != "true" ]; then
+	warn
+  fi
 
   if [ "${verbose}" == "true" ]; then
     set -x
@@ -174,6 +177,7 @@ function main() {
 set -euo pipefail
 
 declare verbose=false
+declare skip_warn=false
 while [ $# -gt 0 ]; do
     case "$1" in
         (-h|--help)
@@ -183,6 +187,9 @@ while [ $# -gt 0 ]; do
         (-v|--verbose)
             verbose=true
             ;;
+	(-f|--force)
+	    skip_warn=true
+	    ;;
         (*)
             break
             ;;
