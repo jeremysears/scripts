@@ -40,6 +40,8 @@ function warn() {
         history.
       * merge the submodule's tags into its parent repository and commit
         each tag merge individually.
+        (only those tags are considered which are reachable from
+         the tip of ${sub}/${branch})
       * merge the submodule into its parent repository and commit it.
       * reinstate any of the submodule's own submodules as part of the parent
         repository
@@ -124,9 +126,9 @@ function main() {
   fi
 
   # First merge all tags
-  # Note that $(git tag --list) will also give us already existing tags from the
-  # parent repo itself. Merging them is a harmless no-op, however.
-  for submodule_tag in $(git tag --list)
+  # We only consider tags reachable from the specified submodule's
+  # branch. All other tags will be ignored.
+  for submodule_tag in $(git tag --list --merged "${sub}/${branch}")
   do
     git merge -s ours -m "Merge submodule tag ${submodule_tag} for ${sub}/${branch}" ${ALLOW_UNRELATED_HISTORIES} "${submodule_tag}" 
   done
