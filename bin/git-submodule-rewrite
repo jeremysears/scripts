@@ -30,6 +30,8 @@ function warn() {
     This script will convert your "${sub}" git submodule into
     a simple subdirectory in the parent repository while retaining all
     contents, file history and its own submodules.
+    
+    WARNING: Git tags of the submodule will *not* be copied over!
 
     The script will:
       * delete the ${sub} submodule configuration from .gitmodules and
