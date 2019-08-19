@@ -38,6 +38,10 @@ function warn() {
         paths are prefixed by ${path}.
         This ensures that git log will correctly follow the original file
         history.
+      * merge the submodule's tags into its parent repository and commit
+        each tag merge individually.
+        (only those tags are considered which are reachable from
+         the tip of ${sub}/${branch})
       * merge the submodule into its parent repository and commit it.
       * reinstate any of the submodule's own submodules as part of the parent
         repository
@@ -100,6 +104,8 @@ function main() {
   # Rewrite submodule history
   local tmpdir="$(mktemp -d -t submodule-rewrite-XXXXXX)"
   git clone -b "${branch}" "${url}" "${tmpdir}"
+  # Be sure to get all tags as well as we will mege them later on
+  git fetch --tags
   pushd "${tmpdir}"
   local tab="$(printf '\t')"
   local filter="git ls-files -s | sed \"s:${tab}:${tab}${path}/:\" | GIT_INDEX_FILE=\${GIT_INDEX_FILE}.new git update-index --index-info && mv \${GIT_INDEX_FILE}.new \${GIT_INDEX_FILE} || true"
@@ -108,7 +114,7 @@ function main() {
 
   # Merge in rewritten submodule history
   git remote add "${sub}" "${tmpdir}"
-  git fetch "${sub}"
+  git fetch --tags "${sub}"
 
   if git_version_lte 2.8.4
   then
@@ -119,7 +125,17 @@ function main() {
     ALLOW_UNRELATED_HISTORIES="--allow-unrelated-histories"
   fi
 
+  # First merge all tags
+  # We only consider tags reachable from the specified submodule's
+  # branch. All other tags will be ignored.
+  for submodule_tag in $(git tag --list --merged "${sub}/${branch}")
+  do
+    git merge -s ours -m "Merge submodule tag ${submodule_tag} for ${sub}/${branch}" ${ALLOW_UNRELATED_HISTORIES} "${submodule_tag}" 
+  done
+
+  # Now merge actual files
   git merge -s ours --no-commit ${ALLOW_UNRELATED_HISTORIES} "${sub}/${branch}"
+
   rm -rf tmpdir
 
   # Add submodule content
