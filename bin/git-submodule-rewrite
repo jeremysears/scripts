@@ -130,7 +130,7 @@ function main() {
   # branch. All other tags will be ignored.
   for submodule_tag in $(git tag --list --merged "${sub}/${branch}")
   do
-    git merge -s ours -m "Merge submodule tag ${submodule_tag} for ${sub}/${branch}" ${ALLOW_UNRELATED_HISTORIES} "${submodule_tag}" 
+    git merge -s ours -m "Merge submodule tag ${submodule_tag} for ${sub}/${branch}" ${ALLOW_UNRELATED_HISTORIES} "${submodule_tag}"
   done
 
   # Now merge actual files
@@ -144,7 +144,7 @@ function main() {
   # Transfer its own submodules to the parent
   add_submod_cmds=""
   if [ -f ${path}/.gitmodules ]; then
-    sub_names=$(git config -f ${path}/.gitmodules --get-regex path | sed 's/.* \(.*\)$/\1/g')
+    sub_names=$(git config -f ${path}/.gitmodules --get-regex path | sed 's/.* \(.*\)$/\1/g' || true)
 
     for sub_name in ${sub_names}; do
       sub_branch=$(git config -f ${path}/.gitmodules --get "submodule.${sub_name}.branch") || true
