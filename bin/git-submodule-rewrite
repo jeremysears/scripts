@@ -116,6 +116,7 @@ function main() {
   popd
 
   # Merge in rewritten submodule history
+  git remote remove "${sub}"
   git remote add "${sub}" "${tmpdir}"
   git fetch --tags "${sub}"
 
